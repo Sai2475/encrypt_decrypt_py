@@ -6,7 +6,7 @@ chars = list(chars)
 key = chars.copy()
 random.shuffle(key)
 
-# Function to encrypt text
+#encrypt text
 def encrypt(plain_text):
     cipher_text = ""
     for letter in plain_text:
@@ -17,7 +17,7 @@ def encrypt(plain_text):
             cipher_text += letter  # Preserve unknown characters
     return cipher_text
 
-# Function to decrypt text
+#decrypt text
 def decrypt(cipher_text):
     plain_text = ""
     for letter in cipher_text:

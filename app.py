@@ -1,29 +1,68 @@
-import streamlit as st
-import encrypt 
+import gradio as gr
+from cryptography.fernet import Fernet
 
-# Streamlit UI
-st.title("🔐 Text Encryption & Decryption App")
-st.write("This app encrypts and decrypts messages using a random substitution cipher.")
+# Generate or load a key
+key = Fernet.generate_key()
+cipher_suite = Fernet(key)
 
-# Encryption 
-st.header("🔹 Encrypt a Message")
-plain_text = st.text_input("Enter a message to encrypt")
-if st.button("Encrypt"):
-    if plain_text:
-        encrypted_text = encrypt.encrypt(plain_text)  #function from encryption.py
-        st.success(f"🔑 Encrypted Message: {encrypted_text}")
-    else:
-        st.warning("Please enter text to encrypt.")
+# Encryption function
+def encrypt_text(text: str) -> str:
+    if not text:
+        return "Error: Please enter text to encrypt!"
+    encrypted_text = cipher_suite.encrypt(text.encode())
+    return encrypted_text.decode()
 
-# Decryption 
-st.header("🔹 Decrypt a Message")
-cipher_text = st.text_input("Enter a message to decrypt")
-if st.button("Decrypt"):
-    if cipher_text:
-        decrypted_text = encrypt.decrypt(cipher_text)  #function from encryption.py
-        st.success(f"🔓 Original Message: {decrypted_text}")
-    else:
-        st.warning("Please enter text to decrypt.")
+# Decryption function
+def decrypt_text(encrypted_text: str) -> str:
+    try:
+        decrypted_text = cipher_suite.decrypt(encrypted_text.encode())
+        return decrypted_text.decode()
+    except:
+        return "Error: Invalid encrypted text!"
 
-st.markdown("---")
-st.markdown("💡 **Note:** This encryption method is simple and not secure for real-world use.")
+# Custom CSS for styling
+custom_css = """
+<style>
+    body { 
+        background: url('https://source.unsplash.com/1600x900/?technology,security') no-repeat center center fixed; 
+        background-size: cover;
+        font-family: Arial, sans-serif;
+    }
+    #title {
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .gradio-container {
+        max-width: 600px;
+        margin: auto;
+    }
+</style>
+"""
+
+# Gradio UI
+with gr.Blocks() as demo:
+    gr.HTML(custom_css)  # Injecting CSS
+    gr.Markdown("# 🔐 Secure Text Encryption & Decryption", elem_id="title")
+    
+    with gr.Tab("Encrypt"):
+        gr.Markdown("### 🔏 Encrypt your text securely")
+        text_input = gr.Textbox(label="Enter text to encrypt", placeholder="Type here...")
+        encrypt_button = gr.Button("Encrypt 🔒", variant="primary")
+        encrypted_output = gr.Textbox(label="Encrypted Text", interactive=False, placeholder="Your encrypted text will appear here.")
+        encrypt_button.click(encrypt_text, inputs=text_input, outputs=encrypted_output)
+    
+    with gr.Tab("Decrypt"):
+        gr.Markdown("### 🔓 Decrypt your text")
+        encrypted_input = gr.Textbox(label="Enter encrypted text", placeholder="Paste encrypted text here...")
+        decrypt_button = gr.Button("Decrypt 🔑", variant="secondary")
+        decrypted_output = gr.Textbox(label="Decrypted Text", interactive=False, placeholder="Your decrypted text will appear here.")
+        decrypt_button.click(decrypt_text, inputs=encrypted_input, outputs=decrypted_output)
+
+# Launch the app
+demo.launch()

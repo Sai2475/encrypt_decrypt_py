@@ -1,18 +1,18 @@
 import gradio as gr
 from cryptography.fernet import Fernet
 
-# Generate or load a key
+# Generate key
 key = Fernet.generate_key()
 cipher_suite = Fernet(key)
 
-# Encryption function
+# Encryption 
 def encrypt_text(text: str) -> str:
     if not text:
         return "Error: Please enter text to encrypt!"
     encrypted_text = cipher_suite.encrypt(text.encode())
     return encrypted_text.decode()
 
-# Decryption function
+# Decryption 
 def decrypt_text(encrypted_text: str) -> str:
     try:
         decrypted_text = cipher_suite.decrypt(encrypted_text.encode())
@@ -20,7 +20,7 @@ def decrypt_text(encrypted_text: str) -> str:
     except:
         return "Error: Invalid encrypted text!"
 
-# Custom CSS for styling
+#CSS 
 custom_css = """
 <style>
     body { 
@@ -64,5 +64,4 @@ with gr.Blocks() as demo:
         decrypted_output = gr.Textbox(label="Decrypted Text", interactive=False, placeholder="Your decrypted text will appear here.")
         decrypt_button.click(decrypt_text, inputs=encrypted_input, outputs=decrypted_output)
 
-# Launch the app
 demo.launch()
